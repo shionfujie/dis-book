@@ -1,0 +1,8 @@
+.CenteredContent {
+    width: 100%;
+    margin: 0 auto;
+    max-width: 820px;
+    min-width: 420px;
+    padding-left: 70px;
+    padding-right: 70px;
+}
