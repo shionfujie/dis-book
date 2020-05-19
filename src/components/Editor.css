@@ -1,0 +1,12 @@
+.Editor {
+    font-size: 15px;
+    line-height: 1.7em;
+    outline: 0;
+}
+
+.Editor__hint {
+    color: rgb(191, 192, 199);
+    pointer-events: none;
+    position: absolute;
+    top: 0px;
+}

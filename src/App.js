@@ -1,13 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import "./App.css";
 import CenteredContent from "./components/CenteredContent";
+import Editor from "./components/Editor";
 
 function App() {
+  const [text, setText] = useState("");
+
   return (
     <div className="App-header">
-            <CenteredContent>
-              <div style={{ background: "black", width: "100%", height: 50 }} />
-            </CenteredContent>
+      <CenteredContent>
+        <Editor text={text} onChange={setText} />
+      </CenteredContent>
     </div>
   );
 }
