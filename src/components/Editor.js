@@ -1,68 +1,124 @@
-import React, { useState, forwardRef } from "react";
+import React, { useState, useReducer } from "react";
 import "./Editor.css";
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    // Update state so the next render will show the fallback UI.
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    // You can also log the error to an error reporting service
+    console.log("logging error");
+    console.log(error);
+    console.log(errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      this.setState({hasError: false})
+      return null;
+    }
+
+    return this.props.children;
+  }
+}
 const Editor = ({ onChange }) => {
   const [text, setText] = useState("");
-  let input;
-  const ref = node => {
-    input = node;
+  let node;
+  const ref = _node => {
+    node = _node;
   };
-
-  console.log(`text: ${text}`);
+  console.log(`text='${text}'`);
   return (
     <div
       className="Editor"
       contentEditable
+      ref={ref}
       style={{
         WebkitUserModify: "read-write-plaintext-only"
       }}
+      onInput={() => {
+        console.log(node);
+        const dataText = node.querySelector("[data-text]");
+        console.log(dataText);
+        if (dataText !== null) {
+          setText(dataText.innerText);
+          return;
+        }
+        const placeholder = node.querySelector("[data-placeholder]");
+        console.log(placeholder);
+        if (placeholder !== null) setText(placeholder.innerText.replace(/\n$/, ""));
+        else {
+          console.log("became empty");
+          if (node.childNodes.length > 0)
+            node.removeChild(node.childNodes[0])
+            
+          setText("");
+        }
+      }}
     >
-     <EmptyInput ref={ref} />
+      <ErrorBoundary>
+        {text !== "" && <NonEmptyInput text={text} />}
+      </ErrorBoundary>
+      {text === "" && <EmptyInput />}
     </div>
   );
 };
 
-const createSelection = (node, position) => {
-  const r = document.createRange();
-  r.setStart(node, position);
-  r.collapse(true);
-  return r;
+const createSelection = node => {
+  const range = document.createRange();
+  range.setStart(node, 1);
+  range.collapse(true);
+  return range;
 };
 
-const NonEmptyInput = forwardRef(({ text }, ref) => {
-  const initializeNode = node => {
-    node.innerText = text.replace(/\n$/, "");
+const select = node => {
+  const selection = window.getSelection();
+  selection.removeAllRanges();
+  selection.addRange(createSelection(node));
+};
 
-    const s = window.getSelection();
-    s.removeAllRanges();
-    s.addRange(createSelection(node, text.length - 1));
+const NonEmptyInput = ({ text }) => {
+  console.log(`NonEmptyInput: ${text}`);
+  const initialize = node => {
+    if (node === null) return;
+    console.log(text);
+    node.innerText = text;
+    select(node);
   };
   return (
-    <span ref={ref}>
-      <span
-        ref={node => {
-          console.log(`text: ${text}, node: ${node}`);
-          if (node && node.innerText === "") initializeNode(node);
-        }}
-      />
-    </span>
+    <>
+      <span data-text ref={initialize}></span>
+    </>
   );
-});
+};
 
-const EmptyInput = forwardRef(({}, ref) => {
+const EmptyInput = ({}) => {
   return (
     <>
-      <span ref={ref}>
+      <span
+        data-placeholder
+        ref={node => {
+          console.log(`node=${node}`)
+          if (node !== null) select(node);
+        }}
+      >
         <br />
       </span>
       <Hint />
     </>
   );
-});
+};
 
 const Hint = () => {
   return (
-    <span contentEditable className="Editor__hint">
+    <span contentEditable={false} className="Editor__hint">
       {"Click here to start typing"}
     </span>
   );
