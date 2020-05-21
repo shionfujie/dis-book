@@ -1,4 +1,4 @@
-import React, { useState, useReducer } from "react";
+import React, { useState } from "react";
 import "./Editor.css";
 
 class ErrorBoundary extends React.Component {
@@ -8,12 +8,10 @@ class ErrorBoundary extends React.Component {
   }
 
   static getDerivedStateFromError(error) {
-    // Update state so the next render will show the fallback UI.
     return { hasError: true };
   }
 
   componentDidCatch(error, errorInfo) {
-    // You can also log the error to an error reporting service
     console.log("logging error");
     console.log(error);
     console.log(errorInfo);
@@ -21,7 +19,7 @@ class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
-      this.setState({hasError: false})
+      this.setState({ hasError: false });
       return null;
     }
 
@@ -30,45 +28,51 @@ class ErrorBoundary extends React.Component {
 }
 const Editor = ({ onChange }) => {
   const [text, setText] = useState("");
+  const textIsEmpty = text === "";
+  console.log(`text='${text}'`);
+
   let node;
   const ref = _node => {
     node = _node;
   };
-  console.log(`text='${text}'`);
-  return (
-    <div
-      className="Editor"
-      contentEditable
-      ref={ref}
-      style={{
-        WebkitUserModify: "read-write-plaintext-only"
-      }}
-      onInput={() => {
-        console.log(node);
-        const dataText = node.querySelector("[data-text]");
-        console.log(dataText);
-        if (dataText !== null) {
-          setText(dataText.innerText);
-          return;
-        }
-        const placeholder = node.querySelector("[data-placeholder]");
-        console.log(placeholder);
-        if (placeholder !== null) setText(placeholder.innerText.replace(/\n$/, ""));
-        else {
-          console.log("became empty");
-          if (node.childNodes.length > 0)
-            node.removeChild(node.childNodes[0])
-            
-          setText("");
-        }
-      }}
-    >
-      <ErrorBoundary>
-        {text !== "" && <NonEmptyInput text={text} />}
-      </ErrorBoundary>
-      {text === "" && <EmptyInput />}
-    </div>
-  );
+
+  const render = () => {
+    return (
+      <div
+        className="Editor"
+        contentEditable
+        ref={ref}
+        style={{
+          WebkitUserModify: "read-write-plaintext-only"
+        }}
+        onInput={onInput}
+      >
+        <ErrorBoundary>
+          {!textIsEmpty && <NonEmptyInput text={text} />}
+        </ErrorBoundary>
+        {textIsEmpty && <EmptyInput />}
+      </div>
+    );
+  };
+
+  const onInput = () => {
+    console.log(node);
+    const dataText = node.querySelector("[data-text]");
+    console.log(dataText);
+    if (dataText !== null) {
+      setText(dataText.innerText);
+      return;
+    }
+    const placeholder = node.querySelector("[data-placeholder]");
+    console.log(placeholder);
+    if (placeholder !== null) setText(placeholder.innerText.replace(/\n$/, ""));
+    else {
+      if (node.childNodes.length > 0) node.removeChild(node.childNodes[0]);
+      setText("");
+    }
+  };
+
+  return render();
 };
 
 const createSelection = node => {
@@ -105,7 +109,7 @@ const EmptyInput = ({}) => {
       <span
         data-placeholder
         ref={node => {
-          console.log(`node=${node}`)
+          console.log(`node=${node}`);
           if (node !== null) select(node);
         }}
       >
