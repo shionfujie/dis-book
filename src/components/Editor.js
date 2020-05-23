@@ -61,13 +61,14 @@ const NonEmptyInput = ({ text }) => {
 };
 
 const EmptyInput = ({}) => {
+  function initialize(node) {
+    if (node !== null) selectNode(node);
+  }
   return (
     <>
       <span
         data-placeholder
-        ref={node => {
-          if (node !== null) selectNode(node);
-        }}
+        ref={initialize}
       >
         <br />
       </span>
