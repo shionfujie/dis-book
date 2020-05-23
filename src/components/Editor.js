@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {selectNode} from "../utils/selectNode"
-import {useForceUpdate} from "../hooks/useForceUpdate"
+import { selectNode } from "../utils/selectNode";
+import { useForceUpdate } from "../hooks/useForceUpdate";
 import "./Editor.css";
 import { ErrorBoundary } from "./ErrorBoundary";
 
@@ -57,11 +57,7 @@ const NonEmptyInput = ({ text }) => {
     node.innerText = text;
     selectNode(node);
   };
-  return (
-    <>
-      <span data-text ref={initialize}></span>
-    </>
-  );
+  return <span data-text ref={initialize}></span>;
 };
 
 const EmptyInput = ({}) => {
