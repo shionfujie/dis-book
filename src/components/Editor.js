@@ -1,16 +1,8 @@
 import React, { useState, useEffect } from "react";
 import {selectNode} from "../utils/selectNode"
+import {useForceUpdate} from "../hooks/useForceUpdate"
 import "./Editor.css";
 import { ErrorBoundary } from "./ErrorBoundary";
-
-function useForceUpdate() {
-  const [forceUpdating, setForceUpdating] = useState(false);
-  useEffect(() => {
-    if (forceUpdating) setForceUpdating(false);
-  }, [forceUpdating]);
-
-  return [forceUpdating, () => setForceUpdating(true)];
-}
 
 const Editor = ({ onChange }) => {
   const [text, setText] = useState("");
