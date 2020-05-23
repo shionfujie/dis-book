@@ -90,7 +90,7 @@ const createSelection = node => {
   return range;
 };
 
-const select = node => {
+const selectNode = node => {
   const selection = window.getSelection();
   selection.removeAllRanges();
   selection.addRange(createSelection(node));
@@ -100,7 +100,7 @@ const NonEmptyInput = ({ text }) => {
   const initialize = node => {
     if (node === null) return;
     node.innerText = text;
-    select(node);
+    selectNode(node);
   };
   return (
     <>
@@ -115,7 +115,7 @@ const EmptyInput = ({}) => {
       <span
         data-placeholder
         ref={node => {
-          if (node !== null) select(node);
+          if (node !== null) selectNode(node);
         }}
       >
         <br />
