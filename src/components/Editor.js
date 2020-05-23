@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Editor.css";
 
 class ErrorBoundary extends React.Component {
@@ -26,10 +26,20 @@ class ErrorBoundary extends React.Component {
     return this.props.children;
   }
 }
+
+function useForceUpdate() {
+  const [forceUpdating, setForceUpdating] = useState(false);
+  useEffect(() => {
+    if (forceUpdating) setForceUpdating(false);
+  }, [forceUpdating]);
+
+  return [forceUpdating, () => setForceUpdating(true)];
+}
+
 const Editor = ({ onChange }) => {
   const [text, setText] = useState("");
   const textIsEmpty = text === "";
-  console.log(`text='${text}'`);
+  const [forceUpdating, forceUpdate] = useForceUpdate();
 
   let node;
   const ref = _node => {
@@ -40,34 +50,32 @@ const Editor = ({ onChange }) => {
     return (
       <div
         className="Editor"
-        contentEditable
         ref={ref}
-        style={{
-          WebkitUserModify: "read-write-plaintext-only"
-        }}
+        contentEditable
+        style={{ WebkitUserModify: "read-write-plaintext-only" }}
         onInput={onInput}
       >
         <ErrorBoundary>
-          {!textIsEmpty && <NonEmptyInput text={text} />}
+          {!forceUpdating &&
+            (textIsEmpty ? <EmptyInput /> : <NonEmptyInput text={text} />)}
         </ErrorBoundary>
-        {textIsEmpty && <EmptyInput />}
+        {}
       </div>
     );
   };
 
   const onInput = () => {
-    console.log(node);
     const dataText = node.querySelector("[data-text]");
-    console.log(dataText);
     if (dataText !== null) {
       setText(dataText.innerText);
       return;
     }
     const placeholder = node.querySelector("[data-placeholder]");
-    console.log(placeholder);
     if (placeholder !== null) setText(placeholder.innerText.replace(/\n$/, ""));
     else {
-      if (node.childNodes.length > 0) node.removeChild(node.childNodes[0]);
+      const childrenLength = node.childNodes.length;
+      if (childrenLength > 0) node.removeChild(node.childNodes[0]);
+      else if (childrenLength == 0) forceUpdate();
       setText("");
     }
   };
@@ -89,10 +97,8 @@ const select = node => {
 };
 
 const NonEmptyInput = ({ text }) => {
-  console.log(`NonEmptyInput: ${text}`);
   const initialize = node => {
     if (node === null) return;
-    console.log(text);
     node.innerText = text;
     select(node);
   };
@@ -109,7 +115,6 @@ const EmptyInput = ({}) => {
       <span
         data-placeholder
         ref={node => {
-          console.log(`node=${node}`);
           if (node !== null) select(node);
         }}
       >
