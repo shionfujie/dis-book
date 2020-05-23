@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import {selectNode} from "../utils/selectNode"
 import "./Editor.css";
 
 class ErrorBoundary extends React.Component {
@@ -81,19 +82,6 @@ const Editor = ({ onChange }) => {
   };
 
   return render();
-};
-
-const createSelection = node => {
-  const range = document.createRange();
-  range.setStart(node, 1);
-  range.collapse(true);
-  return range;
-};
-
-const selectNode = node => {
-  const selection = window.getSelection();
-  selection.removeAllRanges();
-  selection.addRange(createSelection(node));
 };
 
 const NonEmptyInput = ({ text }) => {
