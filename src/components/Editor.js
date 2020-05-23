@@ -21,7 +21,7 @@ const Editor = ({ onChange }) => {
         ref={ref}
         contentEditable
         style={{ WebkitUserModify: "read-write-plaintext-only" }}
-        onInput={onInput}
+        onInput={updateText}
       >
         <ErrorBoundary>
           {!forceUpdating &&
@@ -32,7 +32,7 @@ const Editor = ({ onChange }) => {
     );
   };
 
-  const onInput = () => {
+  const updateText = () => {
     const dataText = node.querySelector("[data-text]");
     if (dataText !== null) {
       setText(dataText.innerText);
